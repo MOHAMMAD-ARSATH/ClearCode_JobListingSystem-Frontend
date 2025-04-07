@@ -1,0 +1,223 @@
+import React, { useState, useRef } from "react";
+import { useLocation } from "react-router-dom";
+import axios from "axios";
+import { Container, Form, Button, Row, Col } from "react-bootstrap";
+import { ToastContainer, toast } from "react-toastify";
+
+import JobHeader from "../components/JobHeader";
+
+const ApplyForm = () => {
+  const API_URL = process.env.REACT_APP_API_URL;
+
+  const location = useLocation();
+  const job = location.state || {};
+
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    contact: "",
+    address: "",
+    gender: "",
+  });
+
+  const resumeRef = useRef(null);
+  const coverLetterRef = useRef(null);
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const isValidPhone = (phone) => /^[0-9]{10,15}$/.test(phone);
+
+  const validateForm = () => {
+    const { name, email, contact, address } = formData;
+    const resume = resumeRef.current?.files[0];
+
+    if (!name.trim()) {
+      toast.error("Name is required");
+      return false;
+    }
+
+    if (!email.trim() || !isValidEmail(email)) {
+      toast.error("Please enter a valid email");
+      return false;
+    }
+
+    if (!contact.trim() || !isValidPhone(contact)) {
+      toast.error("Please enter a valid contact number (10-15 digits)");
+      return false;
+    }
+
+    if (!address.trim()) {
+      toast.error("Address is required");
+      return false;
+    }
+
+    if (!resume) {
+      toast.error("Please upload your resume");
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validateForm()) return;
+
+    const resume = resumeRef.current.files[0];
+    const coverLetter = coverLetterRef.current.files[0];
+
+    const data = new FormData();
+    data.append("name", formData.name);
+    data.append("email", formData.email);
+    data.append("contact", formData.contact);
+    data.append("address", formData.address);
+    data.append("gender", formData.gender);
+    data.append("resume", resume);
+    if (coverLetter) data.append("coverLetter", coverLetter);
+    data.append("job", job._id);
+
+    try {
+      const response = await axios.post(`${API_URL}/api/apply`, data, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      toast.success(
+        response.data.message || "Application submitted successfully!"
+      );
+
+      setFormData({
+        name: "",
+        email: "",
+        contact: "",
+        address: "",
+        gender: "",
+      });
+      resumeRef.current.value = "";
+      coverLetterRef.current.value = "";
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message || "An error occurred while submitting."
+      );
+    }
+  };
+
+  return (
+    <>
+      <JobHeader />
+      <Container className="py-5 form-container">
+        <ToastContainer position="top-center" />
+        <h3 className="text-center mb-4">Apply Form</h3>
+
+        <Form onSubmit={handleSubmit}>
+          <Row>
+            <Col md={6}>
+              <Form.Group className="mb-3">
+                <Form.Label>Name *</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  placeholder="Enter your name"
+                  onChange={handleChange}
+                />
+              </Form.Group>
+            </Col>
+            <Col md={6}>
+              <Form.Group className="mb-3">
+                <Form.Label>Email *</Form.Label>
+                <Form.Control
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  placeholder="Enter your email"
+                  onChange={handleChange}
+                />
+              </Form.Group>
+            </Col>
+          </Row>
+
+          <Row>
+            <Col md={6}>
+              <Form.Group className="mb-3">
+                <Form.Label>Contact Number *</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="contact"
+                  value={formData.contact}
+                  placeholder="Enter your phone number"
+                  onChange={handleChange}
+                />
+              </Form.Group>
+            </Col>
+            <Col md={6}>
+              <Form.Group className="mb-3">
+                <Form.Label>Gender</Form.Label>
+                <Form.Select
+                  name="gender"
+                  value={formData.gender}
+                  onChange={handleChange}
+                >
+                  <option value="">Select Gender</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
+                </Form.Select>
+              </Form.Group>
+            </Col>
+          </Row>
+
+          <Row>
+            <Col md={6}>
+              <Form.Group className="mb-3">
+                <Form.Label>Address *</Form.Label>
+                <Form.Control
+                  as="textarea"
+                  rows={5}
+                  name="address"
+                  value={formData.address}
+                  placeholder="Enter your address"
+                  onChange={handleChange}
+                />
+              </Form.Group>
+            </Col>
+            <Col md={6}>
+              <Form.Group className="mb-4">
+                <Form.Label>Resume (PDF/DOC) *</Form.Label>
+                <Form.Control
+                  type="file"
+                  name="resume"
+                  ref={resumeRef}
+                  accept=".pdf,.doc,.docx"
+                />
+              </Form.Group>
+              <Form.Group className="mb-3">
+                <Form.Label>Cover Letter (optional)</Form.Label>
+                <Form.Control
+                  type="file"
+                  name="coverLetter"
+                  ref={coverLetterRef}
+                  accept=".pdf,.doc,.docx"
+                />
+              </Form.Group>
+            </Col>
+          </Row>
+
+          <div className="text-center mt-4">
+            <Button
+              variant="primary"
+              type="submit"
+              className="submit-btn px-4 py-2"
+            >
+              Submit Application
+            </Button>
+          </div>
+        </Form>
+      </Container>
+    </>
+  );
+};
+
+export default ApplyForm;
