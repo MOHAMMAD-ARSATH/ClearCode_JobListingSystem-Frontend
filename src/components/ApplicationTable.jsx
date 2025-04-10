@@ -17,8 +17,9 @@ const ApplicationTable = () => {
 
   const [applications, setApplications] = useState([]);
   const [filteredApps, setFilteredApps] = useState([]);
-  const [selectedFile, setSelectedFile] = useState(null);
   const [modalShow, setModalShow] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [selectedFileType, setSelectedFileType] = useState("");
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchField, setSearchField] = useState("jobId");
@@ -42,21 +43,23 @@ const ApplicationTable = () => {
     fetchApplications();
   }, []);
 
-  const openModal = (fileUrl) => {
+  const openModal = (fileUrl, fileType) => {
     if (!fileUrl) {
-      alert("File not found!");
+      alert(`${fileType === "resume" ? "Resume" : "Cover Letter"} not found!`);
       return;
     }
     setSelectedFile(fileUrl);
+    setSelectedFileType(fileType);
     setModalShow(true);
   };
 
   const closeModal = () => {
     setSelectedFile(null);
+    setSelectedFileType("");
     setModalShow(false);
   };
 
-  // Handle search input change
+  // Handle search
   useEffect(() => {
     const lowerSearch = searchValue.toLowerCase();
 
@@ -98,6 +101,7 @@ const ApplicationTable = () => {
     (currentPage - 1) * rowsPerPage,
     currentPage * rowsPerPage
   );
+
   const handlePageChange = (page) => setCurrentPage(page);
 
   return (
@@ -126,7 +130,6 @@ const ApplicationTable = () => {
         </Col>
       </Row>
 
-      {/* Table */}
       {loading ? (
         <div className="text-center">
           <Spinner animation="border" variant="primary" />
@@ -163,7 +166,7 @@ const ApplicationTable = () => {
                       <Button
                         variant="outline-primary"
                         size="sm"
-                        onClick={() => openModal(app.resume)}
+                        onClick={() => openModal(app.resume, "resume")}
                       >
                         View
                       </Button>
@@ -172,7 +175,7 @@ const ApplicationTable = () => {
                       <Button
                         variant="outline-secondary"
                         size="sm"
-                        onClick={() => openModal(app.coverLetter)}
+                        onClick={() => openModal(app.coverLetter, "cover")}
                       >
                         View
                       </Button>
@@ -207,17 +210,48 @@ const ApplicationTable = () => {
 
       <Modal show={modalShow} onHide={closeModal} size="lg" centered scrollable>
         <Modal.Header closeButton>
-          <Modal.Title>Document Preview</Modal.Title>
+          <Modal.Title>
+            {selectedFileType === "resume"
+              ? "Resume Preview"
+              : selectedFileType === "cover"
+              ? "Cover Letter Preview"
+              : "Document Preview"}
+          </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {selectedFile ? (
-            <iframe
-              src={selectedFile}
-              title="PDF Preview"
-              width="100%"
-              height="500px"
-              frameBorder="0"
-            />
+            selectedFile.endsWith(".pdf") ? (
+              <iframe
+                src={selectedFile}
+                title="PDF Preview"
+                width="100%"
+                height="500px"
+                frameBorder="0"
+              />
+            ) : selectedFile.endsWith(".docx") ? (
+              <iframe
+                src={`https://docs.google.com/gview?url=${encodeURIComponent(
+                  selectedFile
+                )}&embedded=true`}
+                title="DOCX Preview"
+                width="100%"
+                height="500px"
+                frameBorder="0"
+              />
+            ) : (
+              <>
+                <p>Unsupported file type. Please download to view.</p>
+                <a
+                  href={selectedFile}
+                  download
+                  className="btn btn-secondary mt-2"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Download File
+                </a>
+              </>
+            )
           ) : (
             <p>No file selected.</p>
           )}

@@ -1,16 +1,19 @@
-import React, { useState, useRef } from "react";
-import { useLocation } from "react-router-dom";
+import React, { useState, useRef, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { Container, Form, Button, Row, Col } from "react-bootstrap";
 import { ToastContainer, toast } from "react-toastify";
 
 import JobHeader from "../components/JobHeader";
+import Breadcrumbs from "../components/Breadcrumbs";
 
 const ApplyForm = () => {
   const API_URL = process.env.REACT_APP_API_URL;
 
-  const location = useLocation();
-  const job = location.state || {};
+  const { id } = useParams();
+  const [job, setJob] = useState({});
+
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     name: "",
@@ -38,27 +41,22 @@ const ApplyForm = () => {
       toast.error("Name is required");
       return false;
     }
-
     if (!email.trim() || !isValidEmail(email)) {
       toast.error("Please enter a valid email");
       return false;
     }
-
     if (!contact.trim() || !isValidPhone(contact)) {
       toast.error("Please enter a valid contact number (10-15 digits)");
       return false;
     }
-
     if (!address.trim()) {
       toast.error("Address is required");
       return false;
     }
-
     if (!resume) {
       toast.error("Please upload your resume");
       return false;
     }
-
     return true;
   };
 
@@ -97,6 +95,10 @@ const ApplyForm = () => {
       });
       resumeRef.current.value = "";
       coverLetterRef.current.value = "";
+
+      setTimeout(() => {
+        navigate("/");
+      }, 7000);
     } catch (error) {
       toast.error(
         error.response?.data?.message || "An error occurred while submitting."
@@ -104,18 +106,38 @@ const ApplyForm = () => {
     }
   };
 
+  useEffect(() => {
+    axios
+      .get(`${API_URL}/api/job/${id}`)
+      .then((response) => {
+        setJob(response.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching jobs:", error);
+      });
+  }, [API_URL, id]);
+
+  const breadcrumbsPaths = [
+    { label: "Home", link: "/" },
+    { label: "Job Description", link: `/viewjob/${job._id}` },
+    { label: "Apply Form" },
+  ];
+
   return (
     <>
       <JobHeader />
-      <Container className="py-5 form-container">
+      <Breadcrumbs paths={breadcrumbsPaths} />
+      <Container className="py-4 form-container">
         <ToastContainer position="top-center" />
-        <h3 className="text-center mb-4">Apply Form</h3>
+        <h3 className="text-center mb-4">Application Form</h3>
 
         <Form onSubmit={handleSubmit}>
           <Row>
             <Col md={6}>
               <Form.Group className="mb-3">
-                <Form.Label>Name *</Form.Label>
+                <Form.Label>
+                  Name <span className="required">*</span>
+                </Form.Label>
                 <Form.Control
                   type="text"
                   name="name"
@@ -127,7 +149,9 @@ const ApplyForm = () => {
             </Col>
             <Col md={6}>
               <Form.Group className="mb-3">
-                <Form.Label>Email *</Form.Label>
+                <Form.Label>
+                  Email <span className="required">*</span>
+                </Form.Label>
                 <Form.Control
                   type="email"
                   name="email"
@@ -142,7 +166,9 @@ const ApplyForm = () => {
           <Row>
             <Col md={6}>
               <Form.Group className="mb-3">
-                <Form.Label>Contact Number *</Form.Label>
+                <Form.Label>
+                  Contact Number <span className="required">*</span>
+                </Form.Label>
                 <Form.Control
                   type="text"
                   name="contact"
@@ -172,7 +198,9 @@ const ApplyForm = () => {
           <Row>
             <Col md={6}>
               <Form.Group className="mb-3">
-                <Form.Label>Address *</Form.Label>
+                <Form.Label>
+                  Address <span className="required">*</span>
+                </Form.Label>
                 <Form.Control
                   as="textarea"
                   rows={5}
@@ -185,7 +213,9 @@ const ApplyForm = () => {
             </Col>
             <Col md={6}>
               <Form.Group className="mb-4">
-                <Form.Label>Resume (PDF/DOC) *</Form.Label>
+                <Form.Label>
+                  Resume (PDF/DOC) <span className="required">*</span>
+                </Form.Label>
                 <Form.Control
                   type="file"
                   name="resume"

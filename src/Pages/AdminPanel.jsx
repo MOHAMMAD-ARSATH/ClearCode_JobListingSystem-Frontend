@@ -1,7 +1,6 @@
 import React, { useState, useRef } from "react";
 import { Card, Tab, Tabs, Spinner } from "react-bootstrap";
-
-import { ToastContainer } from 'react-toastify';
+import { ToastContainer } from "react-toastify";
 
 import UserNav from "../components/UserNav";
 import ManageJobs from "../components/ManageJobs";
@@ -10,12 +9,7 @@ import ApplicationTable from "../components/ApplicationTable";
 
 const AdminPanel = () => {
   const [loading, setLoading] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
   const tableContainerRef = useRef(null);
-
-  const rowsPerPage = 5;
-
-  const handlePageChange = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
     <div className="admin-panel">

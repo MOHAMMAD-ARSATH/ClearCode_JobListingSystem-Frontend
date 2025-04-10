@@ -6,7 +6,6 @@ import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import './App.css';
 
-
 import AdminPanel from './Pages/AdminPanel';
 import UserPanel from './Pages/UserPanel';
 import JobDetail from './Pages/JobDetail';
@@ -19,8 +18,8 @@ function App() {
       <>
         <Routes>
           <Route path="/" element={<UserPanel/>} />
-          <Route path="/viewjob" element={<JobDetail/>}/>
-          <Route path="/applyjob" element={<ApplyForm/>}/>
+          <Route path="/viewjob/:id" element={<JobDetail/>}/>
+          <Route path="/applyjob/:id" element={<ApplyForm/>}/>
           <Route path="/admin" element={<AdminPanel />} /> 
         </Routes>
       </>

@@ -1,14 +1,33 @@
-import React from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { ArrowRightCircle } from "react-bootstrap-icons";
-import { Button } from "react-bootstrap";
+import { Button, Spinner } from "react-bootstrap";
 
 import JobHeader from "../components/JobHeader";
+import Breadcrumbs from "../components/Breadcrumbs";
+import axios from "axios";
 
 const JobDetail = () => {
-  const location = useLocation();
-  const job = location.state || {};
+  const API_URL = process.env.REACT_APP_API_URL;
+
+  const { id } = useParams();
+  const [job, setJob] = useState([]);
+  const [loading, setLoading] = useState(true);
+
   const navigate = useNavigate();
+
+  useEffect(() => {
+    axios
+      .get(`${API_URL}/api/job/${id}`)
+      .then((response) => {
+        setJob(response.data);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error("Error fetching jobs:", error);
+        setLoading(false);
+      });
+  }, []);
 
   const formatDescription = (desc) => {
     if (!desc) return [];
@@ -29,23 +48,37 @@ const JobDetail = () => {
     country = parsedCountry || country;
   }
 
+  const breadcrumbsPaths = [
+    { label: "Home", link: "/" },
+    { label: "Job Description" },
+  ];
+
   return (
     <div className="job-detail-wrapper">
       <JobHeader />
-
+      <Breadcrumbs paths={breadcrumbsPaths} />
       <div className="job-body container">
         <div className="job-description-detail">
           <h4>Job Description</h4>
-          <ul className="description-list">
-            {formatDescription(job.jobDescription)}
-          </ul>
-          <Button
-            variant="primary"
-            className="m-2"
-            onClick={() => navigate("/applyjob", { state: job })}
-          >
-            Apply Now <ArrowRightCircle className="ms-2" />
-          </Button>
+          {loading ? (
+            <div className="text-center my-5">
+              <Spinner animation="border" role="status" variant="primary" />
+              <div className="mt-3">Loading... Please wait</div>
+            </div>
+          ) : (
+            <>
+              <ul className="description-list">
+                {formatDescription(job.jobDescription)}
+              </ul>
+              <Button
+                variant="primary"
+                className="m-2"
+                onClick={() => navigate(`/applyjob/${job._id}`)}
+              >
+                Apply Now <ArrowRightCircle className="ms-2" />
+              </Button>
+            </>
+          )}
         </div>
 
         <div className="job-info">

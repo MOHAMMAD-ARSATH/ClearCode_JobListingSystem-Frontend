@@ -10,6 +10,7 @@ const ManageJobs = () => {
   const API_URL = process.env.REACT_APP_API_URL;
 
   const [jobs, setJobs] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [selectedJob, setSelectedJob] = useState(null);
 
   const [showConfirm, setShowConfirm] = useState(false);
@@ -38,6 +39,7 @@ const ManageJobs = () => {
   };
 
   const handleDelete = async () => {
+    setLoading(true);
     try {
       await axios.delete(`${API_URL}/api/job/${jobToDelete}`);
       toast.success("Job deleted successfully!");
@@ -48,6 +50,7 @@ const ManageJobs = () => {
       setShowConfirm(false);
       setJobToDelete(null);
     }
+    setLoading(false);
   };
 
   const handleFormSuccess = () => {
@@ -63,7 +66,12 @@ const ManageJobs = () => {
     <>
       <div className="manage-jobs-wrapper">
         {!selectedJob ? (
-        <JobTable jobs={jobs} onEdit={handleEdit} onDelete={confirmDelete} />
+          <JobTable
+            jobs={jobs}
+            onEdit={handleEdit}
+            onDelete={confirmDelete}
+            loading={loading}
+          />
         ) : (
           <JobForm
             job={selectedJob}
@@ -73,7 +81,7 @@ const ManageJobs = () => {
         )}
       </div>
 
-      <Modal show={showConfirm} onHide={() => setShowConfirm(false)} >
+      <Modal show={showConfirm} onHide={() => setShowConfirm(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Confirm Deletion</Modal.Title>
         </Modal.Header>

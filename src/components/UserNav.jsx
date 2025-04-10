@@ -1,15 +1,26 @@
 import { useState } from "react";
 import { Navbar, Nav, Container } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const UserNav = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [expanded, setExpanded] = useState(false);
 
   const handleNavClick = (path) => {
-    setExpanded(false); // Collapse the menu after clicking
+    setExpanded(false);
+
     if (path === "/#jobs") {
-      window.location.href = path; // Navigate with hash
+      if (location.pathname !== "/") {
+        navigate("/", { replace: false });
+        setTimeout(() => {
+          document
+            .getElementById("jobs")
+            ?.scrollIntoView({ behavior: "smooth" });
+        }, 100);
+      } else {
+        document.getElementById("jobs")?.scrollIntoView({ behavior: "smooth" });
+      }
     } else {
       navigate(path);
     }
@@ -21,7 +32,8 @@ const UserNav = () => {
       expanded={expanded}
       bg="transparent"
       variant="dark"
-      className="px-4 py-2 position-absolute w-100 top-0"
+      className="px-4 py-2 position-absolute w-100 top-0 z-3"
+      id="nav"
     >
       <Container fluid>
         <Navbar.Toggle
@@ -38,13 +50,13 @@ const UserNav = () => {
               className="nav-item-link"
               onClick={() => handleNavClick("/")}
             >
-              HOME
+              Home
             </Nav.Link>
             <Nav.Link
               className="nav-item-link"
               onClick={() => handleNavClick("/#jobs")}
             >
-              JOBS
+              Jobs
             </Nav.Link>
           </Nav>
         </Navbar.Collapse>
