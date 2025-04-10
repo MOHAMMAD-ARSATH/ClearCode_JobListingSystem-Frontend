@@ -229,15 +229,34 @@ const ApplicationTable = () => {
                 frameBorder="0"
               />
             ) : selectedFile.endsWith(".docx") ? (
-              <iframe
-                src={`https://docs.google.com/gview?url=${encodeURIComponent(
-                  selectedFile
-                )}&embedded=true`}
-                title="DOCX Preview"
-                width="100%"
-                height="500px"
-                frameBorder="0"
-              />
+              selectedFile.startsWith("http") &&
+              selectedFile.includes("drive.google.com") ? (
+                <iframe
+                  src={`https://docs.google.com/gview?url=${encodeURIComponent(
+                    selectedFile
+                  )}&embedded=true`}
+                  title="DOCX Preview"
+                  width="100%"
+                  height="500px"
+                  frameBorder="0"
+                />
+              ) : (
+                <>
+                  <p>
+                    This .docx file can't be previewed. Please download it to
+                    view:
+                  </p>
+                  <a
+                    href={selectedFile}
+                    download
+                    className="btn btn-primary mt-2"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Download Document
+                  </a>
+                </>
+              )
             ) : (
               <>
                 <p>Unsupported file type. Please download to view.</p>
