@@ -9,51 +9,35 @@ import {
   Spinner,
 } from "react-bootstrap";
 import { FaEdit, FaTrash } from "react-icons/fa";
+import axios from "axios";
 
-const JobTable = ({ jobs, onEdit, onDelete }) => {
+const JobTable = ({ onEdit, onDelete }) => {
+  const API_URL = process.env.REACT_APP_API_URL;
+
   const [showModal, setShowModal] = useState(false);
   const [selectedDescription, setSelectedDescription] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [searchField, setSearchField] = useState("jobId");
   const [searchValue, setSearchValue] = useState("");
-  const [filteredJobs, setFilteredJobs] = useState([]);
+  const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const rowsPerPage = 5;
 
-  useEffect(() => {
+  const fetchJobs = async () => {
     setLoading(true);
-    const timeout = setTimeout(() => {
-      const lowerSearch = searchValue.toLowerCase();
+    try {
+      const res = await axios.get(`${API_URL}/api/job/`);
+      setJobs(res.data);
+    } catch (error) {
+      console.error("Error fetching jobs:", error);
+    }
+    setLoading(false);
+  };
 
-      const filtered = jobs.filter((job) => {
-        let field = "";
-        switch (searchField) {
-          case "jobId":
-            field = job.jobId || "";
-            break;
-          case "companyName":
-            field = job.companyName || "";
-            break;
-          case "roleName":
-            field = job.roleName || "";
-            break;
-          case "jobLocation":
-            field = job.jobLocation || "";
-            break;
-          default:
-            break;
-        }
-        return field.toLowerCase().includes(lowerSearch);
-      });
-
-      setFilteredJobs(filtered);
-      setCurrentPage(1);
-      setLoading(false);
-    }, 300);
-
-    return () => clearTimeout(timeout);
-  }, [searchField, searchValue, jobs]);
+  useEffect(() => {
+    fetchJobs();
+  }, []);
 
   const handleDescriptionClick = (desc) => {
     setSelectedDescription(desc);
@@ -64,6 +48,12 @@ const JobTable = ({ jobs, onEdit, onDelete }) => {
     setShowModal(false);
     setSelectedDescription("");
   };
+
+  // Filter jobs based on search criteria
+  const filteredJobs = jobs.filter((job) => {
+    const field = job[searchField] || "";
+    return field.toLowerCase().includes(searchValue.toLowerCase());
+  });
 
   const totalPages = Math.ceil(filteredJobs.length / rowsPerPage);
   const currentJobs = filteredJobs.slice(
@@ -98,7 +88,11 @@ const JobTable = ({ jobs, onEdit, onDelete }) => {
       {loading ? (
         <div className="text-center">
           <Spinner animation="border" variant="primary" />
-          <p>Loading applications...</p>
+          <p>Loading jobs...</p>
+        </div>
+      ) : filteredJobs.length === 0 ? (
+        <div className="text-center py-4">
+          <p>No jobs available.</p>
         </div>
       ) : (
         <div className="table-responsive">
@@ -114,58 +108,47 @@ const JobTable = ({ jobs, onEdit, onDelete }) => {
                 <th>Actions</th>
               </tr>
             </thead>
-
-            {filteredJobs.length === 0 ? (
-              <tbody>
-                <tr>
-                  <td colSpan="7" className="text-center py-4">
-                    No jobs available.
+            <tbody>
+              {currentJobs.map((job, index) => (
+                <tr key={job._id}>
+                  <td>{(currentPage - 1) * rowsPerPage + index + 1}</td>
+                  <td>{job.jobId}</td>
+                  <td>{job.companyName}</td>
+                  <td>{job.roleName}</td>
+                  <td>
+                    <button
+                      className="btn btn-link p-0 text-primary"
+                      onClick={() =>
+                        handleDescriptionClick(job.jobDescription)
+                      }
+                    >
+                      View Description
+                    </button>
+                  </td>
+                  <td>{job.jobLocation}</td>
+                  <td>
+                    <div className="d-flex justify-content-center gap-3 flex-wrap">
+                      <Button
+                        variant="outline-primary"
+                        size="sm"
+                        onClick={() => onEdit(job)}
+                        title="Edit"
+                      >
+                        <FaEdit />
+                      </Button>
+                      <Button
+                        variant="outline-danger"
+                        size="sm"
+                        onClick={() => onDelete(job._id)}
+                        title="Delete"
+                      >
+                        <FaTrash />
+                      </Button>
+                    </div>
                   </td>
                 </tr>
-              </tbody>
-            ) : (
-              <tbody>
-                {currentJobs.map((job, index) => (
-                  <tr key={job._id}>
-                    <td>{(currentPage - 1) * rowsPerPage + index + 1}</td>
-                    <td>{job.jobId}</td>
-                    <td>{job.companyName}</td>
-                    <td>{job.roleName}</td>
-                    <td>
-                      <button
-                        className="btn btn-link p-0 text-primary"
-                        onClick={() =>
-                          handleDescriptionClick(job.jobDescription)
-                        }
-                      >
-                        View Description
-                      </button>
-                    </td>
-                    <td>{job.jobLocation}</td>
-                    <td>
-                      <div className="d-flex justify-content-center gap-3 flex-wrap">
-                        <Button
-                          variant="outline-primary"
-                          size="sm"
-                          onClick={() => onEdit(job)}
-                          title="Edit"
-                        >
-                          <FaEdit />
-                        </Button>
-                        <Button
-                          variant="outline-danger"
-                          size="sm"
-                          onClick={() => onDelete(job._id)}
-                          title="Delete"
-                        >
-                          <FaTrash />
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            )}
+              ))}
+            </tbody>
           </table>
         </div>
       )}
