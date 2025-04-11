@@ -24,6 +24,8 @@ const ApplicationTable = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchField, setSearchField] = useState("jobId");
   const [searchValue, setSearchValue] = useState("");
+  const [errorModalShow, setErrorModalShow] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const rowsPerPage = 5;
 
@@ -45,7 +47,10 @@ const ApplicationTable = () => {
 
   const openModal = (fileUrl, fileType) => {
     if (!fileUrl) {
-      alert(`${fileType === "resume" ? "Resume" : "Cover Letter"} not found!`);
+      const message =
+        fileType === "resume" ? "Resume not provided!" : "Cover Letter not provided!";
+      setErrorMessage(message);
+      setErrorModalShow(true);
       return;
     }
     setSelectedFile(fileUrl);
@@ -59,7 +64,6 @@ const ApplicationTable = () => {
     setModalShow(false);
   };
 
-  // Handle search
   useEffect(() => {
     const lowerSearch = searchValue.toLowerCase();
 
@@ -275,6 +279,24 @@ const ApplicationTable = () => {
             <p>No file selected.</p>
           )}
         </Modal.Body>
+      </Modal>
+
+      <Modal
+        show={errorModalShow}
+        onHide={() => setErrorModalShow(false)}
+        centered
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Error</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>{errorMessage}</p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setErrorModalShow(false)}>
+            Close
+          </Button>
+        </Modal.Footer>
       </Modal>
     </Container>
   );
