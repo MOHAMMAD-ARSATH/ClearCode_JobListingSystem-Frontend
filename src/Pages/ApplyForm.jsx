@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import axios from "axios";
 import { Container, Form, Button, Row, Col } from "react-bootstrap";
 import { ToastContainer, toast } from "react-toastify";
+import axios from "axios";
 
 import JobHeader from "../components/JobHeader";
 import Breadcrumbs from "../components/Breadcrumbs";
@@ -25,6 +25,8 @@ const ApplyForm = () => {
 
   const resumeRef = useRef(null);
   const coverLetterRef = useRef(null);
+
+  const [submitting, setSubmitting] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -64,6 +66,8 @@ const ApplyForm = () => {
     e.preventDefault();
     if (!validateForm()) return;
 
+    setSubmitting(true); 
+
     const resume = resumeRef.current.files[0];
     const coverLetter = coverLetterRef.current.files[0];
 
@@ -98,11 +102,13 @@ const ApplyForm = () => {
 
       setTimeout(() => {
         navigate("/");
-      }, 7000);
+      }, 6000);
     } catch (error) {
       toast.error(
         error.response?.data?.message || "An error occurred while submitting."
       );
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -240,8 +246,9 @@ const ApplyForm = () => {
               variant="primary"
               type="submit"
               className="submit-btn px-4 py-2"
+              disabled={submitting}
             >
-              Submit Application
+              {submitting ? "Submitting..." : "Submit Application"}
             </Button>
           </div>
         </Form>
