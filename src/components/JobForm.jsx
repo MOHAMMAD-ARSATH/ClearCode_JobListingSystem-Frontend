@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Form, Button, Spinner, Card, Row, Col } from "react-bootstrap";
+import { Form, Button, Spinner, Row, Col } from "react-bootstrap";
 import { toast } from "react-toastify";
 import axios from "axios";
 
@@ -83,7 +83,6 @@ const JobForm = ({ job, onSuccess, onCancel }) => {
 
   return (
     <div>
-      <Card.Body>
         <Form onSubmit={handleSubmit}>
           <Row>
             <Col md={6}>
@@ -195,7 +194,6 @@ const JobForm = ({ job, onSuccess, onCancel }) => {
             )}
           </div>
         </Form>
-      </Card.Body>
     </div>
   );
 };
