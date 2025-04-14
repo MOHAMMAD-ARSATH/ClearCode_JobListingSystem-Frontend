@@ -118,9 +118,7 @@ const JobTable = ({ onEdit, onDelete }) => {
                   <td>
                     <button
                       className="btn btn-link p-0 text-primary"
-                      onClick={() =>
-                        handleDescriptionClick(job.jobDescription)
-                      }
+                      onClick={() => handleDescriptionClick(job.jobDescription)}
                     >
                       View Description
                     </button>
