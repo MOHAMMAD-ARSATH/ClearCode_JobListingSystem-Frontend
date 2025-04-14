@@ -83,117 +83,117 @@ const JobForm = ({ job, onSuccess, onCancel }) => {
 
   return (
     <div>
-        <Form onSubmit={handleSubmit}>
-          <Row>
-            <Col md={6}>
-              <Form.Group className="mb-3">
-                <Form.Label>Job ID</Form.Label>
-                <Form.Control
-                  type="text"
-                  name="jobId"
-                  value={formData.jobId}
-                  onChange={handleChange}
-                  isInvalid={!!errors.jobId}
-                  disabled={!!job}
-                  placeholder="Enter Job ID"
-                />
-                <Form.Control.Feedback type="invalid">
-                  {errors.jobId}
-                </Form.Control.Feedback>
-              </Form.Group>
-            </Col>
+      <Form onSubmit={handleSubmit}>
+        <Row>
+          <Col md={6}>
+            <Form.Group className="mb-3">
+              <Form.Label>Job ID</Form.Label>
+              <Form.Control
+                type="text"
+                name="jobId"
+                value={formData.jobId}
+                onChange={handleChange}
+                isInvalid={!!errors.jobId}
+                disabled={!!job}
+                placeholder="Enter Job ID"
+              />
+              <Form.Control.Feedback type="invalid">
+                {errors.jobId}
+              </Form.Control.Feedback>
+            </Form.Group>
+          </Col>
 
-            <Col md={6}>
-              <Form.Group className="mb-3">
-                <Form.Label>Company Name</Form.Label>
-                <Form.Control
-                  type="text"
-                  name="companyName"
-                  value={formData.companyName}
-                  onChange={handleChange}
-                  isInvalid={!!errors.companyName}
-                  placeholder="e.g., Google, Infosys, TCS"
-                />
-                <Form.Control.Feedback type="invalid">
-                  {errors.companyName}
-                </Form.Control.Feedback>
-              </Form.Group>
-            </Col>
-          </Row>
+          <Col md={6}>
+            <Form.Group className="mb-3">
+              <Form.Label>Company Name</Form.Label>
+              <Form.Control
+                type="text"
+                name="companyName"
+                value={formData.companyName}
+                onChange={handleChange}
+                isInvalid={!!errors.companyName}
+                placeholder="e.g., Google, Infosys, TCS"
+              />
+              <Form.Control.Feedback type="invalid">
+                {errors.companyName}
+              </Form.Control.Feedback>
+            </Form.Group>
+          </Col>
+        </Row>
 
-          <Row>
-            <Col md={6}>
-              <Form.Group className="mb-3">
-                <Form.Label>Role Name</Form.Label>
-                <Form.Control
-                  type="text"
-                  name="roleName"
-                  value={formData.roleName}
-                  onChange={handleChange}
-                  isInvalid={!!errors.roleName}
-                  placeholder="e.g., Frontend Developer, QA Analyst"
-                />
-                <Form.Control.Feedback type="invalid">
-                  {errors.roleName}
-                </Form.Control.Feedback>
-              </Form.Group>
-            </Col>
+        <Row>
+          <Col md={6}>
+            <Form.Group className="mb-3">
+              <Form.Label>Role Name</Form.Label>
+              <Form.Control
+                type="text"
+                name="roleName"
+                value={formData.roleName}
+                onChange={handleChange}
+                isInvalid={!!errors.roleName}
+                placeholder="e.g., Frontend Developer, QA Analyst"
+              />
+              <Form.Control.Feedback type="invalid">
+                {errors.roleName}
+              </Form.Control.Feedback>
+            </Form.Group>
+          </Col>
 
-            <Col md={6}>
-              <Form.Group className="mb-3">
-                <Form.Label>Job Location</Form.Label>
-                <Form.Control
-                  type="text"
-                  name="jobLocation"
-                  value={formData.jobLocation}
-                  onChange={handleChange}
-                  isInvalid={!!errors.jobLocation}
-                  placeholder="e.g., Chennai, TN - India"
-                />
-                <Form.Control.Feedback type="invalid">
-                  {errors.jobLocation}
-                </Form.Control.Feedback>
-              </Form.Group>
-            </Col>
-          </Row>
+          <Col md={6}>
+            <Form.Group className="mb-3">
+              <Form.Label>Job Location</Form.Label>
+              <Form.Control
+                type="text"
+                name="jobLocation"
+                value={formData.jobLocation}
+                onChange={handleChange}
+                isInvalid={!!errors.jobLocation}
+                placeholder="e.g., Chennai, TN - India"
+              />
+              <Form.Control.Feedback type="invalid">
+                {errors.jobLocation}
+              </Form.Control.Feedback>
+            </Form.Group>
+          </Col>
+        </Row>
 
-          <Form.Group className="mb-3">
-            <Form.Label>Job Description</Form.Label>
-            <Form.Control
-              as="textarea"
-              rows={4}
-              name="jobDescription"
-              value={formData.jobDescription}
-              onChange={handleChange}
-              isInvalid={!!errors.jobDescription}
-              placeholder="Enter job responsibilities, requirements, experience level, etc."
-            />
-            <Form.Control.Feedback type="invalid">
-              {errors.jobDescription}
-            </Form.Control.Feedback>
-          </Form.Group>
+        <Form.Group className="mb-3">
+          <Form.Label>Job Description</Form.Label>
+          <Form.Control
+            as="textarea"
+            rows={4}
+            name="jobDescription"
+            value={formData.jobDescription}
+            onChange={handleChange}
+            isInvalid={!!errors.jobDescription}
+            placeholder="Enter job responsibilities, requirements, experience level, etc."
+          />
+          <Form.Control.Feedback type="invalid">
+            {errors.jobDescription}
+          </Form.Control.Feedback>
+        </Form.Group>
 
-          <div className="d-flex justify-content-between">
-            <Button variant="primary" type="submit" disabled={submitting}>
-              {submitting ? (
-                <Spinner size="sm" animation="border" />
-              ) : job ? (
-                "Update Job"
-              ) : (
-                "Add Job"
-              )}
-            </Button>
-            {job && (
-              <Button
-                variant="secondary"
-                onClick={onCancel}
-                disabled={submitting}
-              >
-                Cancel
-              </Button>
+        <div className="d-flex justify-content-between">
+          <Button variant="primary" type="submit" disabled={submitting}>
+            {submitting ? (
+              <Spinner size="sm" animation="border" />
+            ) : job ? (
+              "Update Job"
+            ) : (
+              "Add Job"
             )}
-          </div>
-        </Form>
+          </Button>
+          {job && (
+            <Button
+              variant="secondary"
+              onClick={onCancel}
+              disabled={submitting}
+            >
+              Cancel
+            </Button>
+          )}
+        </div>
+      </Form>
     </div>
   );
 };
