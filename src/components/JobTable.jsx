@@ -90,10 +90,6 @@ const JobTable = ({ onEdit, onDelete }) => {
           <Spinner animation="border" variant="primary" />
           <p>Loading jobs...</p>
         </div>
-      ) : filteredJobs.length === 0 ? (
-        <div className="text-center py-4">
-          <p>No jobs available.</p>
-        </div>
       ) : (
         <div className="table-responsive">
           <table className="table job-table table-bordered table-hover">
@@ -109,43 +105,53 @@ const JobTable = ({ onEdit, onDelete }) => {
               </tr>
             </thead>
             <tbody>
-              {currentJobs.map((job, index) => (
-                <tr key={job._id}>
-                  <td>{(currentPage - 1) * rowsPerPage + index + 1}</td>
-                  <td>{job.jobId}</td>
-                  <td>{job.companyName}</td>
-                  <td>{job.roleName}</td>
-                  <td>
-                    <button
-                      className="btn btn-link p-0 text-primary"
-                      onClick={() => handleDescriptionClick(job.jobDescription)}
-                    >
-                      View Description
-                    </button>
-                  </td>
-                  <td>{job.jobLocation}</td>
-                  <td>
-                    <div className="d-flex justify-content-center gap-3 flex-wrap">
-                      <Button
-                        variant="outline-primary"
-                        size="sm"
-                        onClick={() => onEdit(job)}
-                        title="Edit"
+              {currentJobs.length > 0 ? (
+                currentJobs.map((job, index) => (
+                  <tr key={job._id}>
+                    <td>{(currentPage - 1) * rowsPerPage + index + 1}</td>
+                    <td>{job.jobId}</td>
+                    <td>{job.companyName}</td>
+                    <td>{job.roleName}</td>
+                    <td>
+                      <button
+                        className="btn btn-link p-0 text-primary"
+                        onClick={() =>
+                          handleDescriptionClick(job.jobDescription)
+                        }
                       >
-                        <FaEdit />
-                      </Button>
-                      <Button
-                        variant="outline-danger"
-                        size="sm"
-                        onClick={() => onDelete(job._id)}
-                        title="Delete"
-                      >
-                        <FaTrash />
-                      </Button>
-                    </div>
+                        View Description
+                      </button>
+                    </td>
+                    <td>{job.jobLocation}</td>
+                    <td>
+                      <div className="d-flex justify-content-center gap-3 flex-wrap">
+                        <Button
+                          variant="outline-primary"
+                          size="sm"
+                          onClick={() => onEdit(job)}
+                          title="Edit"
+                        >
+                          <FaEdit />
+                        </Button>
+                        <Button
+                          variant="outline-danger"
+                          size="sm"
+                          onClick={() => onDelete(job._id)}
+                          title="Delete"
+                        >
+                          <FaTrash />
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="7" className="text-center py-4">
+                    No jobs available.
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>
