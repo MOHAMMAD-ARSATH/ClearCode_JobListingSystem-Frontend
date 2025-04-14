@@ -66,7 +66,7 @@ const ApplyForm = () => {
     e.preventDefault();
     if (!validateForm()) return;
 
-    setSubmitting(true); 
+    setSubmitting(true);
 
     const resume = resumeRef.current.files[0];
     const coverLetter = coverLetterRef.current.files[0];
@@ -226,7 +226,7 @@ const ApplyForm = () => {
                   type="file"
                   name="resume"
                   ref={resumeRef}
-                  accept=".pdf,.doc,.docx"
+                  accept=".pdf,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                 />
               </Form.Group>
               <Form.Group className="mb-3">
@@ -235,7 +235,7 @@ const ApplyForm = () => {
                   type="file"
                   name="coverLetter"
                   ref={coverLetterRef}
-                  accept=".pdf,.doc,.docx"
+                  accept=".pdf,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                 />
               </Form.Group>
             </Col>
