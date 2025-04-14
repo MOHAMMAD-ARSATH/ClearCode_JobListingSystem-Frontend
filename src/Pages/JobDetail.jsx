@@ -2,10 +2,10 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowRightCircle } from "react-bootstrap-icons";
 import { Button, Spinner } from "react-bootstrap";
+import axios from "axios";
 
 import JobHeader from "../components/JobHeader";
 import Breadcrumbs from "../components/Breadcrumbs";
-import axios from "axios";
 
 const JobDetail = () => {
   const API_URL = process.env.REACT_APP_API_URL;
@@ -57,16 +57,17 @@ const JobDetail = () => {
     <div className="job-detail-wrapper">
       <JobHeader />
       <Breadcrumbs paths={breadcrumbsPaths} />
-      <div className="job-body container">
-        <div className="job-description-detail">
-          <h4>Job Description</h4>
-          {loading ? (
-            <div className="text-center my-5">
-              <Spinner animation="border" role="status" variant="primary" />
-              <div className="mt-3">Loading... Please wait</div>
-            </div>
-          ) : (
-            <>
+      {loading ? (
+        <div className="text-center my-5">
+          <Spinner animation="border" role="status" variant="primary" />
+          <div className="mt-3">Loading... Please wait</div>
+        </div>
+      ) : (
+        <>
+          <div className="job-body container">
+            <div className="job-description-detail">
+              <h4>Job Description</h4>
+
               <ul className="description-list">
                 {formatDescription(job.jobDescription)}
               </ul>
@@ -77,33 +78,33 @@ const JobDetail = () => {
               >
                 Apply Now <ArrowRightCircle className="ms-2" />
               </Button>
-            </>
-          )}
-        </div>
+            </div>
 
-        <div className="job-info">
-          <h4>Job Information</h4>
-          <p>
-            <strong>Job ID:</strong>
-            <br /> {job.jobId}
-          </p>
-          <p>
-            <strong>Job Location:</strong>
-            <br /> {city}
-          </p>
-          <p>
-            <strong>Country:</strong> <br /> {country}
-          </p>
-          <p>
-            <strong>Industry:</strong>
-            <br /> Technology
-          </p>
-          <p>
-            <strong>Job Posted On:</strong>
-            <br /> {job.postedAt?.split("T")[0]}
-          </p>
-        </div>
-      </div>
+            <div className="job-info">
+              <h4>Job Information</h4>
+              <p>
+                <strong>Job ID:</strong>
+                <br /> {job.jobId}
+              </p>
+              <p>
+                <strong>Job Location:</strong>
+                <br /> {city}
+              </p>
+              <p>
+                <strong>Country:</strong> <br /> {country}
+              </p>
+              <p>
+                <strong>Industry:</strong>
+                <br /> Technology
+              </p>
+              <p>
+                <strong>Job Posted On:</strong>
+                <br /> {job.postedAt?.split("T")[0]}
+              </p>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 };
