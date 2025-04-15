@@ -82,11 +82,8 @@ const ApplyForm = () => {
     data.append("job", job._id);
 
     try {
-      const response = await axios.post(`${API_URL}/api/apply`, data, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-
-      toast.success(
+    const response = await axios.post(`${API_URL}/api/apply`, data) 
+    toast.success(
         response.data.message || "Application submitted successfully!"
       );
 
