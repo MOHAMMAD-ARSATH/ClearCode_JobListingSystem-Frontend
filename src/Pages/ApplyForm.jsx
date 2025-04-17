@@ -9,11 +9,11 @@ import Breadcrumbs from "../components/Breadcrumbs";
 
 const ApplyForm = () => {
   const API_URL = process.env.REACT_APP_API_URL;
-
   const { id } = useParams();
-  const [job, setJob] = useState({});
-
   const navigate = useNavigate();
+
+  const [job, setJob] = useState({});
+  const [submitting, setSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -26,8 +26,6 @@ const ApplyForm = () => {
   const resumeRef = useRef(null);
   const coverLetterRef = useRef(null);
 
-  const [submitting, setSubmitting] = useState(false);
-
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -39,37 +37,23 @@ const ApplyForm = () => {
     const { name, email, contact, address } = formData;
     const resume = resumeRef.current?.files[0];
 
-    if (!name.trim()) {
-      toast.error("Name is required");
-      return false;
-    }
-    if (!email.trim() || !isValidEmail(email)) {
-      toast.error("Please enter a valid email");
-      return false;
-    }
-    if (!contact.trim() || !isValidPhone(contact)) {
-      toast.error("Please enter a valid contact number (10-15 digits)");
-      return false;
-    }
-    if (!address.trim()) {
-      toast.error("Address is required");
-      return false;
-    }
-    if (!resume) {
-      toast.error("Please upload your resume");
-      return false;
-    }
+    if (!name.trim()) return toast.error("Name is required");
+    if (!email.trim() || !isValidEmail(email)) return toast.error("Please enter a valid email");
+    if (!contact.trim() || !isValidPhone(contact)) return toast.error("Enter a valid phone number (10–15 digits)");
+    if (!address.trim()) return toast.error("Address is required");
+    if (!resume) return toast.error("Please upload your resume");
+    if (resume.size > 5 * 1024 * 1024) return toast.error("Resume should not exceed 5MB");
+
     return true;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validateForm()) return;
+    if (submitting || !validateForm()) return;
 
     setSubmitting(true);
-
     const resume = resumeRef.current.files[0];
-    const coverLetter = coverLetterRef.current.files[0];
+    const coverLetter = coverLetterRef.current?.files[0];
 
     const data = new FormData();
     data.append("name", formData.name);
@@ -82,47 +66,41 @@ const ApplyForm = () => {
     data.append("job", job._id);
 
     try {
-    const response = await axios.post(`${API_URL}/api/apply`, data) 
-    toast.success(
-        response.data.message || "Application submitted successfully!"
-      );
+      const response = await axios.post(`${API_URL}/api/apply`, data);
+      toast.success(response.data.message || "Application submitted successfully!");
 
-      setFormData({
-        name: "",
-        email: "",
-        contact: "",
-        address: "",
-        gender: "",
-      });
+      setFormData({ name: "", email: "", contact: "", address: "", gender: "" });
       resumeRef.current.value = "";
       coverLetterRef.current.value = "";
 
-      setTimeout(() => {
-        navigate("/");
-      }, 6000);
+      setTimeout(() => navigate("/"), 6000);
     } catch (error) {
-      toast.error(
-        error.response?.data?.message || "An error occurred while submitting."
-      );
+      toast.error(error.response?.data?.message || "Submission failed. Try again.");
     } finally {
       setSubmitting(false);
     }
   };
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+
+    if (!id) {
+      toast.error("Invalid job ID");
+      return;
+    }
+
     axios
       .get(`${API_URL}/api/job/${id}`)
-      .then((response) => {
-        setJob(response.data);
-      })
-      .catch((error) => {
-        console.error("Error fetching jobs:", error);
+      .then((res) => setJob(res.data))
+      .catch((err) => {
+        console.error("Job fetch failed:", err);
+        toast.error("Failed to load job details.");
       });
   }, [API_URL, id]);
 
   const breadcrumbsPaths = [
     { label: "Home", link: "/" },
-    { label: "Job Description", link: `/viewjob/${job._id}` },
+    ...(job._id ? [{ label: "Job Description", link: `/viewjob/${job._id}` }] : []),
     { label: "Apply Form" },
   ];
 
@@ -133,16 +111,20 @@ const ApplyForm = () => {
       <Container className="py-4 form-container">
         <ToastContainer position="top-center" />
         <h3 className="text-center mb-4">Application Form</h3>
+        {job.title && (
+          <h5 className="text-center text-muted mb-3">
+            Applying for: <strong>{job.title}</strong>
+          </h5>
+        )}
 
         <Form onSubmit={handleSubmit}>
           <Row>
             <Col md={6}>
               <Form.Group className="mb-3">
-                <Form.Label>
-                  Name <span className="required">*</span>
-                </Form.Label>
+                <Form.Label htmlFor="name">Name <span className="required">*</span></Form.Label>
                 <Form.Control
                   type="text"
+                  id="name"
                   name="name"
                   value={formData.name}
                   placeholder="Enter your name"
@@ -152,11 +134,10 @@ const ApplyForm = () => {
             </Col>
             <Col md={6}>
               <Form.Group className="mb-3">
-                <Form.Label>
-                  Email <span className="required">*</span>
-                </Form.Label>
+                <Form.Label htmlFor="email">Email <span className="required">*</span></Form.Label>
                 <Form.Control
                   type="email"
+                  id="email"
                   name="email"
                   value={formData.email}
                   placeholder="Enter your email"
@@ -169,11 +150,10 @@ const ApplyForm = () => {
           <Row>
             <Col md={6}>
               <Form.Group className="mb-3">
-                <Form.Label>
-                  Contact Number <span className="required">*</span>
-                </Form.Label>
+                <Form.Label htmlFor="contact">Contact Number <span className="required">*</span></Form.Label>
                 <Form.Control
                   type="text"
+                  id="contact"
                   name="contact"
                   value={formData.contact}
                   placeholder="Enter your phone number"
@@ -183,8 +163,9 @@ const ApplyForm = () => {
             </Col>
             <Col md={6}>
               <Form.Group className="mb-3">
-                <Form.Label>Gender</Form.Label>
+                <Form.Label htmlFor="gender">Gender</Form.Label>
                 <Form.Select
+                  id="gender"
                   name="gender"
                   value={formData.gender}
                   onChange={handleChange}
@@ -201,11 +182,10 @@ const ApplyForm = () => {
           <Row>
             <Col md={6}>
               <Form.Group className="mb-3">
-                <Form.Label>
-                  Address <span className="required">*</span>
-                </Form.Label>
+                <Form.Label htmlFor="address">Address <span className="required">*</span></Form.Label>
                 <Form.Control
                   as="textarea"
+                  id="address"
                   rows={5}
                   name="address"
                   value={formData.address}
@@ -216,24 +196,31 @@ const ApplyForm = () => {
             </Col>
             <Col md={6}>
               <Form.Group className="mb-4">
-                <Form.Label>
-                  Resume (PDF/DOC) <span className="required">*</span>
-                </Form.Label>
+                <Form.Label htmlFor="resume">Resume (PDF/DOC) <span className="required">*</span></Form.Label>
                 <Form.Control
                   type="file"
+                  id="resume"
                   name="resume"
                   ref={resumeRef}
-                  accept=".pdf,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                  accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                 />
+                {resumeRef.current?.files[0]?.name && (
+                  <small className="text-muted">{resumeRef.current.files[0].name}</small>
+                )}
               </Form.Group>
+
               <Form.Group className="mb-3">
-                <Form.Label>Cover Letter (optional)</Form.Label>
+                <Form.Label htmlFor="coverLetter">Cover Letter (optional)</Form.Label>
                 <Form.Control
                   type="file"
+                  id="coverLetter"
                   name="coverLetter"
                   ref={coverLetterRef}
-                  accept=".pdf,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                  accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                 />
+                {coverLetterRef.current?.files[0]?.name && (
+                  <small className="text-muted">{coverLetterRef.current.files[0].name}</small>
+                )}
               </Form.Group>
             </Col>
           </Row>
