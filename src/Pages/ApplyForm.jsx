@@ -204,9 +204,6 @@ const ApplyForm = () => {
                   ref={resumeRef}
                   accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                 />
-                {resumeRef.current?.files[0]?.name && (
-                  <small className="text-muted">{resumeRef.current.files[0].name}</small>
-                )}
               </Form.Group>
 
               <Form.Group className="mb-3">
@@ -218,9 +215,6 @@ const ApplyForm = () => {
                   ref={coverLetterRef}
                   accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                 />
-                {coverLetterRef.current?.files[0]?.name && (
-                  <small className="text-muted">{coverLetterRef.current.files[0].name}</small>
-                )}
               </Form.Group>
             </Col>
           </Row>
