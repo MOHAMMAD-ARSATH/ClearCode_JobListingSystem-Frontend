@@ -47,39 +47,57 @@ const ApplyForm = () => {
     return true;
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (submitting || !validateForm()) return;
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+  if (!validateForm()) return;
 
-    setSubmitting(true);
-    const resume = resumeRef.current.files[0];
-    const coverLetter = coverLetterRef.current?.files[0];
+  setSubmitting(true);
 
-    const data = new FormData();
-    data.append("name", formData.name);
-    data.append("email", formData.email);
-    data.append("contact", formData.contact);
-    data.append("address", formData.address);
-    data.append("gender", formData.gender);
-    data.append("resume", resume);
-    if (coverLetter) data.append("coverLetter", coverLetter);
-    data.append("job", job._id);
+  const resume = resumeRef.current.files[0];
+  const coverLetter = coverLetterRef.current.files[0];
 
-    try {
-      const response = await axios.post(`${API_URL}/api/apply`, data);
-      toast.success(response.data.message || "Application submitted successfully!");
+  const data = new FormData();
+  data.append("name", formData.name);
+  data.append("email", formData.email);
+  data.append("contact", formData.contact);
+  data.append("address", formData.address);
+  data.append("gender", formData.gender);
+  data.append("resume", resume);
+  if (coverLetter) data.append("coverLetter", coverLetter);
+  data.append("job", job._id);
 
-      setFormData({ name: "", email: "", contact: "", address: "", gender: "" });
-      resumeRef.current.value = "";
-      coverLetterRef.current.value = "";
+  // Log the FormData to ensure it's correct
+  for (let pair of data.entries()) {
+    console.log(pair[0], pair[1]);
+  }
 
-      setTimeout(() => navigate("/"), 6000);
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Submission failed. Try again.");
-    } finally {
-      setSubmitting(false);
-    }
-  };
+  try {
+    const response = await axios.post(`${API_URL}/api/apply`, data);
+    toast.success(
+      response.data.message || "Application submitted successfully!"
+    );
+
+    setFormData({
+      name: "",
+      email: "",
+      contact: "",
+      address: "",
+      gender: "",
+    });
+    resumeRef.current.value = "";
+    coverLetterRef.current.value = "";
+
+    setTimeout(() => {
+      navigate("/");
+    }, 6000);
+  } catch (error) {
+    toast.error(
+      error.response?.data?.message || "An error occurred while submitting."
+    );
+  } finally {
+    setSubmitting(false);
+  }
+};
 
   useEffect(() => {
     window.scrollTo(0, 0);
