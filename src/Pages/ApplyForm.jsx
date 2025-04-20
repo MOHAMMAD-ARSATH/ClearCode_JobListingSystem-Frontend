@@ -32,33 +32,47 @@ const ApplyForm = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  const isValidPhone = (phone) => /^[0-9]{10,15}$/.test(phone);
+  const isValidName = (name) => /^[A-Za-z\s]{3,}$/.test(name);
+
+  const isValidEmail = (email) =>
+    /^[^\s@]+@[^\s@]+\.(com|in)$/.test(email) &&
+    (email.endsWith("@gmail.com") ||
+      email.endsWith("@yahoo.com") ||
+      email.endsWith("@outlook.com"));
+
+  const isValidPhone = (phone) => /^[6-9]\d{9}$/.test(phone);
+
+  const isValidAddress = (address) => address.trim().length >= 10;
 
   const validateForm = () => {
     const { name, email, contact, address } = formData;
     const resume = resumeRef.current?.files[0];
 
-    if (!name.trim()) {
-      toast.error("Name is required");
+    if (!name.trim() || !isValidName(name)) {
+      toast.error("Please enter a valid name");
       return false;
     }
+
     if (!email.trim() || !isValidEmail(email)) {
-      toast.error("Please enter a valid email");
+      toast.error("Enter a valid email");
       return false;
     }
+
     if (!contact.trim() || !isValidPhone(contact)) {
-      toast.error("Please enter a valid contact number (10-15 digits)");
+      toast.error("Enter a valid phone number");
       return false;
     }
-    if (!address.trim()) {
-      toast.error("Address is required");
+
+    if (!address.trim() || !isValidAddress(address)) {
+      toast.error("Address must be at least 10 characters long");
       return false;
     }
+
     if (!resume) {
       toast.error("Please upload your resume");
       return false;
     }
+
     return true;
   };
 
@@ -82,7 +96,7 @@ const ApplyForm = () => {
     data.append("job", job._id);
 
     try {
-      const response = await axios.post(`${API_URL}/api/apply`, data)      
+      const response = await axios.post(`${API_URL}/api/apply`, data);
       toast.success(
         response.data.message || "Application submitted successfully!"
       );
