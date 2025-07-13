@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button, Spinner } from "react-bootstrap";
 import axios from "axios";
@@ -6,26 +6,39 @@ import axios from "axios";
 import UserNav from "./UserNav";
 
 const JobHeader = () => {
-  const navigate = useNavigate();
-
-  const { id } = useParams();
   const API_URL = process.env.REACT_APP_API_URL;
 
-  const [job, setJob] = useState([]);
+  const { id } = useParams();
+  const navigate = useNavigate();
+
+  const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!id) {
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
     axios
       .get(`${API_URL}/api/job/${id}`)
-      .then((response) => {
-        setJob(response.data);
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error("Error fetching jobs:", error);
-        setLoading(false);
-      });
-  }, []);
+      .then((response) => setJob(response.data))
+      .catch((error) => console.error("Error fetching job:", error))
+      .finally(() => setLoading(false));
+  }, [id, API_URL]);
+
+  if (loading) {
+    return (
+      <div className="job-header text-center my-5">
+        <Spinner animation="border" variant="primary" />
+        <div className="mt-3">Loading... Please wait</div>
+      </div>
+    );
+  }
+
+  if (!job) {
+    return <div className="job-header text-center my-5">Job not found.</div>;
+  }
 
   return (
     <div className="job-header">
