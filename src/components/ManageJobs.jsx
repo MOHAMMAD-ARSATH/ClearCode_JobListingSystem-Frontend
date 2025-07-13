@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { Button, Modal } from "react-bootstrap";
 import axios from "axios";
@@ -16,18 +16,21 @@ const ManageJobs = () => {
   const [showConfirm, setShowConfirm] = useState(false);
   const [jobToDelete, setJobToDelete] = useState(null);
 
-  useEffect(() => {
-    fetchJobs();
-  }, []);
-
   const fetchJobs = async () => {
+    setLoading(true);
     try {
       const response = await axios.get(`${API_URL}/api/job`);
       setJobs(response.data);
     } catch (error) {
       console.error("Error fetching jobs:", error);
+    } finally {
+      setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchJobs();
+  }, []);
 
   const handleEdit = (job) => {
     setSelectedJob({ ...job });
@@ -43,19 +46,34 @@ const ManageJobs = () => {
     try {
       await axios.delete(`${API_URL}/api/job/${jobToDelete}`);
       toast.success("Job deleted successfully!");
-      fetchJobs();
+      await fetchJobs();
     } catch (error) {
       console.error("Error deleting job:", error);
     } finally {
       setShowConfirm(false);
       setJobToDelete(null);
+      setLoading(false);
     }
-    setLoading(false);
   };
 
-  const handleFormSuccess = () => {
+  const handleFormSuccess = async (newlyAddedOrUpdatedJob) => {
+    if (newlyAddedOrUpdatedJob) {
+      setJobs((prevJobs) => {
+        const existingIndex = prevJobs.findIndex(
+          (job) => job._id === newlyAddedOrUpdatedJob._id
+        );
+        if (existingIndex !== -1) {
+          const updatedJobs = [...prevJobs];
+          updatedJobs[existingIndex] = newlyAddedOrUpdatedJob;
+          return updatedJobs;
+        } else {
+          return [newlyAddedOrUpdatedJob, ...prevJobs];
+        }
+      });
+    } else {
+      await fetchJobs();
+    }
     setSelectedJob(null);
-    fetchJobs();
   };
 
   const handleCancelEdit = () => {
