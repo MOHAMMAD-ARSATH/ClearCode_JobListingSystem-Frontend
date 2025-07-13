@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   Modal,
   Button,
@@ -9,35 +9,20 @@ import {
   Spinner,
 } from "react-bootstrap";
 import { FaEdit, FaTrash } from "react-icons/fa";
-import axios from "axios";
 
-const JobTable = ({ onEdit, onDelete }) => {
-  const API_URL = process.env.REACT_APP_API_URL;
-
+const JobTable = ({ onEdit, onDelete, jobs, loading }) => {
+  
   const [showModal, setShowModal] = useState(false);
   const [selectedDescription, setSelectedDescription] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [searchField, setSearchField] = useState("jobId");
   const [searchValue, setSearchValue] = useState("");
-  const [jobs, setJobs] = useState([]);
-  const [loading, setLoading] = useState(true);
 
   const rowsPerPage = 5;
 
-  const fetchJobs = async () => {
-    setLoading(true);
-    try {
-      const res = await axios.get(`${API_URL}/api/job/`);
-      setJobs(res.data);
-    } catch (error) {
-      console.error("Error fetching jobs:", error);
-    }
-    setLoading(false);
-  };
-
   useEffect(() => {
-    fetchJobs();
-  }, []);
+    setCurrentPage(1);
+  }, [jobs]);
 
   const handleDescriptionClick = (desc) => {
     setSelectedDescription(desc);
@@ -49,7 +34,6 @@ const JobTable = ({ onEdit, onDelete }) => {
     setSelectedDescription("");
   };
 
-  // Filter jobs based on search criteria
   const filteredJobs = jobs.filter((job) => {
     const field = job[searchField] || "";
     return field.toLowerCase().includes(searchValue.toLowerCase());
